@@ -1,14 +1,5 @@
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
-const { Pool } = require('pg');
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  host: 'localhost',
-  database: 'lightbnb'
-});
+const db = require('./db');
 
-pool.connect()
 /// Users
 
 /**
@@ -22,7 +13,7 @@ const getUserWithEmail = function(email) {
   FROM users
   WHERE users.email = $1;
   `
-  return pool.query(queryString, [email])
+  return db.query(queryString, [email])
     .then(res => {
       if(res.rows) {
         return res.rows[0];
@@ -46,7 +37,7 @@ const getUserWithId = function(id) {
   SELECT * FROM users
   WHERE users.id = $1
   `;
-  return pool.query(queryString, [id])
+  return db.query(queryString, [id])
     .then(res => {
       if (res.rows) {
         return res.rows[0];
@@ -71,7 +62,7 @@ const addUser =  function(user) {
   RETURNING *;
   `;
   const values = [user.name, user.email, user.password];
-  return pool.query(queryString, values)
+  return db.query(queryString, values)
     .then(res => {
       return res.rows[0];
     })
@@ -101,7 +92,7 @@ const getAllReservations = function(guest_id, limit = 10) {
   LIMIT $2;
   `;
   const values = [guest_id, limit];
-  return pool.query(queryString, values)
+  return db.query(queryString, values)
     .then(res => {
       return res.rows;
     })
@@ -173,7 +164,7 @@ const getAllProperties = function(options, limit = 10) {
   console.log(queryString, queryParams);
 
   // 6 Run the query.
-  return pool.query(queryString, queryParams)
+  return db.query(queryString, queryParams)
   .then(res => res.rows);
 };
 exports.getAllProperties = getAllProperties;
@@ -192,7 +183,7 @@ const addProperty = function(property) {
   `;
   const values = [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, property.cost_per_night, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code];
   
-  return pool.query(queryString, values)
+  return db.query(queryString, values)
     .then(res => {
       return res.rows[0];
     })
